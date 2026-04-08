@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ping plugin - Reply pong to /ping command
+Eat What plugin - Help you decide what to eat
 """
 
-from nonebot import on_command
+from nonebot import on_keyword
 from nonebot.adapters.telegram import Bot
 from nonebot.adapters.telegram.event import MessageEvent
 from nonebot.plugin import PluginMetadata
+# from nonebot.rule import to_me
 
 __plugin_meta__ = PluginMetadata(
-    name="ping",
-    description="Reply pong to /ping command",
-    usage="/ping",
+    name="echo",
+    description="吃什么",
+    usage="吃什么",
     type="application",
     config=None,
     supported_adapters=None,
 )
 
-# Create a command handler for /ping
-ping = on_command("ping", priority=5, block=True)
+csm = on_keyword("吃什么", priority=5, block=True)
 
 
-@ping.handle()
+@csm.handle()
 async def handle_ping(bot: Bot, event: MessageEvent):
-    """Handle /ping command, reply with pong"""
-    await ping.finish("pong")
+    await csm.finish("吃什么")
+

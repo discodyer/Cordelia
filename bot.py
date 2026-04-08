@@ -16,7 +16,6 @@ driver = nonebot.get_driver()
 driver.register_adapter(TelegramAdapter)
 
 # Load plugins
-nonebot.load_builtin_plugins("echo")
 nonebot.load_from_toml("pyproject.toml")
 
 if __name__ == "__main__":
