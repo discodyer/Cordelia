@@ -1,0 +1,23 @@
+[project]
+name = "Cordelia"
+version = "0.1.0"
+description = "Cordelia"
+readme = "README.md"
+requires-python = ">=3.10, <4.0"
+dependencies = [
+    "nonebot2[fastapi,httpx]>=2.5.0",
+    "nonebot-adapter-telegram>=0.1.0b20",
+]
+
+[tool.nonebot]
+plugin_dirs = ["src/plugins"]
+builtin_plugins = ["echo"]
+
+[tool.nonebot.adapters]
+nonebot-adapter-telegram = [
+    { name = "Telegram", module_name = "nonebot.adapters.telegram" }
+]
+"@local" = []
+
+[tool.nonebot.plugins]
+"@local" = []
