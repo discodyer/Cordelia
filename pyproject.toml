@@ -7,6 +7,7 @@ requires-python = ">=3.10, <4.0"
 dependencies = [
     "nonebot2[fastapi,httpx]>=2.5.0",
     "nonebot-adapter-telegram>=0.1.0b20",
+    "nonebot-plugin-apscheduler>=0.5.0",
 ]
 
 [tool.nonebot]
@@ -21,3 +22,4 @@ nonebot-adapter-telegram = [
 
 [tool.nonebot.plugins]
 "@local" = []
+"nonebot_plugin_apscheduler" = []
