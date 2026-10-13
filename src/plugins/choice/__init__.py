@@ -1,12 +1,17 @@
 """从用户提供的选项中随机选择一个。"""
 
+import os
 import random
+import re
+from re import Match
 
-from nonebot import on_command, on_startswith
-from nonebot.adapters import Message
+from nonebot import get_driver, on_regex, on_startswith
+from nonebot.adapters import Bot, Event
 from nonebot.adapters.telegram.event import MessageEvent
-from nonebot.params import CommandArg
+from nonebot.adapters.telegram.model import ReplyParameters
+from nonebot.params import RegexMatched
 from nonebot.plugin import PluginMetadata
+from nonebot.rule import Rule
 
 __plugin_meta__ = PluginMetadata(
     name="choice",
@@ -17,7 +22,34 @@ __plugin_meta__ = PluginMetadata(
     supported_adapters={"nonebot.adapters.telegram"},
 )
 
-choice = on_command("choice", force_whitespace=True, priority=5, block=True)
+CHOICE_PATTERN = r"^/choice(?:@(?P<bot>[A-Za-z0-9_]+))?(?:[ \t]+(?P<args>.*))?$"
+
+# Telegram represents `/choice@BotName` as a bot command. Match the optional
+# target explicitly so that this bot only responds to its own username.
+async def _choice_target(
+    bot: Bot,
+    event: Event,
+) -> bool:
+    matched = re.fullmatch(CHOICE_PATTERN, event.get_plaintext())
+    if matched is None:
+        return False
+    target = matched.group("bot")
+    username = (
+        bot.username
+        or getattr(get_driver().config, "telegram_bot_username", None)
+        or os.getenv("TELEGRAM_BOT_USERNAME")
+    )
+    return not target or (
+        username is not None and target.casefold() == username.casefold()
+    )
+
+
+choice = on_regex(
+    CHOICE_PATTERN,
+    rule=Rule(_choice_target),
+    priority=5,
+    block=True,
+)
 help_choose = on_startswith("帮我选", priority=5, block=True)
 
 
@@ -29,11 +61,20 @@ def choose_reply(text: str) -> str:
 
 
 @choice.handle()
-async def handle_choice(message: Message = CommandArg()):
-    await choice.finish(choose_reply(message.extract_plain_text()))
+async def handle_choice(
+    event: MessageEvent,
+    matched: Match[str] = RegexMatched(),
+):
+    await choice.finish(
+        choose_reply(matched.group("args") or ""),
+        reply_parameters=ReplyParameters(message_id=event.message_id),
+    )
 
 
 @help_choose.handle()
 async def handle_help_choose(event: MessageEvent):
     options_text = event.get_plaintext()[len("帮我选"):]
-    await help_choose.finish(choose_reply(options_text))
+    await help_choose.finish(
+        choose_reply(options_text),
+        reply_parameters=ReplyParameters(message_id=event.message_id),
+    )

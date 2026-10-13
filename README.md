@@ -25,6 +25,10 @@ Compose 将同一份配置注入环境变量并只读挂载到 `/app/.env`。Non
 需要从 dotenv 文件发现 `telegram_bots` 和插件自定义配置项，仅设置环境变量
 会导致这些配置未被加载。未配置 bot 时应用会明确报错并退出。
 
+Telegram 适配器启动时会通过 `getMe` 自动获取当前 bot 用户名。若需要手动指定，
+可在 `.env` 中设置 `TELEGRAM_BOT_USERNAME=CodysBot`；它只作为自动获取失败或
+尚未完成时的用户名匹配兜底。
+
 ## GitHub Actions + self-hosted runner 自动部署
 
 每次推送到 `main`，工作流会在服务器上的 runner 执行 `actions/checkout` 拉取该提交，
@@ -90,7 +94,7 @@ See [Docs](https://nonebot.dev/)
 ## Commands
 
 - `/ping` - Reply with pong
-- `/choice 苹果 香蕉` 或 `帮我选 苹果 香蕉` - 随机回复 `我选: 苹果` 或 `我选: 香蕉`。选项以空格分隔，支持多个空格；未提供选项时会提示用法。
+- `/choice 苹果 香蕉`、`/choice@CodysBot 苹果 香蕉` 或 `帮我选 苹果 香蕉` - 随机回复 `我选: 苹果` 或 `我选: 香蕉`，并引用原始指令消息。选项以空格分隔，支持多个空格；群组中可以使用 `@CodysBot` 指定本机器人，指定其他机器人时不会响应；未提供选项时会提示用法。
 
 在 Telegram 群组中接收“帮我选”等普通消息，需要通过 BotFather 的 `/setprivacy`
 关闭机器人的 Privacy Mode；私聊可直接使用。
