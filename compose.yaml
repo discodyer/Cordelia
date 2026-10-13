@@ -8,5 +8,14 @@ services:
     image: cordelia:local
     env_file:
       - ${CORDELIA_ENV_FILE:-.env}
+    # NoneBot discovers adapter/plugin configuration keys from dotenv files.
+    # env_file alone injects OS variables without providing that discovery.
+    volumes:
+      - type: bind
+        source: ${CORDELIA_ENV_FILE:-.env}
+        target: /app/.env
+        read_only: true
+        bind:
+          create_host_path: false
     restart: unless-stopped
     init: true

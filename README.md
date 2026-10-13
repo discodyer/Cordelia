@@ -21,6 +21,10 @@ docker compose logs -f cordelia
 
 默认使用 Telegram 轮询，容器不需要映射端口。
 
+Compose 将同一份配置注入环境变量并只读挂载到 `/app/.env`。NoneBot 2.5
+需要从 dotenv 文件发现 `telegram_bots` 和插件自定义配置项，仅设置环境变量
+会导致这些配置未被加载。未配置 bot 时应用会明确报错并退出。
+
 ## GitHub Actions + self-hosted runner 自动部署
 
 每次推送到 `main`，工作流会在服务器上的 runner 执行 `actions/checkout` 拉取该提交，
@@ -67,6 +71,17 @@ docker logs -f cordelia-cordelia-1
 生产密钥只放在 `/opt/cordelia/.env`，它不会进入仓库或镜像。runner 应仅注册到
 这个仓库，并保持更新；Docker 用户组拥有宿主机的高权限，请勿让不受信任的代码
 获得向 `main` 推送的权限。
+
+修改 `.env` 后，在 Actions 页面重新运行部署以应用配置。手动部署时，在 checkout
+目录执行以下命令；`restart` 不会应用新的环境变量或挂载配置：
+
+```bash
+sudo env CORDELIA_ENV_FILE=/opt/cordelia/.env \
+  docker compose up -d --build --force-recreate
+```
+
+正常连接 Telegram 后，日志会出现 `Delete old webhook`、`Start poll`。容器显示
+运行中仅代表进程启动，请私聊机器人发送 `/ping` 验证消息收发。
 
 ## Documentation
 
