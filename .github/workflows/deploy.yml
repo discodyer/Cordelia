@@ -1,0 +1,35 @@
+name: Deploy Cordelia
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: cordelia-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # Install this runner on the private server and give it the `cordelia`
+    # label. The runner opens the connection to GitHub; no inbound port is
+    # needed on the server.
+    runs-on: [self-hosted, linux, cordelia]
+    timeout-minutes: 15
+    env:
+      CORDELIA_ENV_FILE: /opt/cordelia/.env
+    steps:
+      - name: Check out the pushed commit
+        uses: actions/checkout@v4
+
+      - name: Build and restart the service
+        run: |
+          test -f "$CORDELIA_ENV_FILE"
+          docker compose build --pull
+          docker compose up -d --remove-orphans
+
+      - name: Verify the container started
+        run: docker compose ps --status running --services | grep -qx cordelia

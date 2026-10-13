@@ -1,0 +1,12 @@
+name: cordelia
+
+services:
+  cordelia:
+    build:
+      context: .
+      pull: true
+    image: cordelia:local
+    env_file:
+      - ${CORDELIA_ENV_FILE:-.env}
+    restart: unless-stopped
+    init: true
