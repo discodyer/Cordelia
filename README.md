@@ -90,3 +90,7 @@ See [Docs](https://nonebot.dev/)
 ## Commands
 
 - `/ping` - Reply with pong
+- `/choice 苹果 香蕉` 或 `帮我选 苹果 香蕉` - 随机回复 `我选: 苹果` 或 `我选: 香蕉`。选项以空格分隔，支持多个空格；未提供选项时会提示用法。
+
+在 Telegram 群组中接收“帮我选”等普通消息，需要通过 BotFather 的 `/setprivacy`
+关闭机器人的 Privacy Mode；私聊可直接使用。
